@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Business } from '../types/models';
 import { BusinessRow, toBusinessModel } from '../types/database';
@@ -29,9 +29,13 @@ export function useBusiness(): UseBusinessReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const fetchBusiness = useCallback(async () => {
+    if (!supabase) {
+      setState({ business: null, loading: false, error: null });
+      return;
+    }
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -70,6 +74,7 @@ export function useBusiness(): UseBusinessReturn {
   }, [fetchBusiness]);
 
   const updateBusiness = useCallback(async (data: BusinessFormInput): Promise<Business | null> => {
+    if (!supabase) return null;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       // Validate input
@@ -107,6 +112,7 @@ export function useBusiness(): UseBusinessReturn {
   }, [supabase]);
 
   const uploadLogo = useCallback(async (file: File): Promise<string | null> => {
+    if (!supabase) return null;
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Quote, QuoteStatus } from '../types/models';
 import { QuoteRow, toQuoteModel } from '../types/database';
@@ -32,12 +32,13 @@ export function useUpdateQuote(): UseUpdateQuoteReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const updateQuote = useCallback(async (
     quoteId: string,
     input: UpdateQuoteInput
   ): Promise<Quote | null> => {
+    if (!supabase) return null;
     setState({ loading: true, error: null });
     try {
       const updateData: Record<string, unknown> = {};

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Quote } from '../types/models';
 import { QuoteRow, QuoteItemRow, toQuoteModel, toQuoteItemModel } from '../types/database';
@@ -43,9 +43,10 @@ export function useCreateQuote(): UseCreateQuoteReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const createQuote = useCallback(async (input: CreateQuoteInput): Promise<Quote | null> => {
+    if (!supabase) return null;
     setState({ loading: true, error: null });
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -149,7 +150,7 @@ export function useCreateQuote(): UseCreateQuoteReturn {
  * Validates: Requirements 5.9
  */
 async function generateQuoteNumber(
-  supabase: ReturnType<typeof createBrowserClient>,
+  supabase: NonNullable<ReturnType<typeof createBrowserClient>>,
   businessId: string
 ): Promise<string> {
   const year = new Date().getFullYear();

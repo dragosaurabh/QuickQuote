@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Customer } from '../types/models';
 import { CustomerRow, toCustomerModel } from '../types/database';
@@ -26,9 +26,10 @@ export function useUpdateCustomer(): UseUpdateCustomerReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const updateCustomer = useCallback(async (id: string, data: CustomerFormInput): Promise<Customer | null> => {
+    if (!supabase) return null;
     setState({ loading: true, error: null });
     try {
       // Validate input using Zod schema

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 
 export interface DeleteServiceState {
@@ -23,7 +23,7 @@ export function useDeleteService(): UseDeleteServiceReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   /**
    * Soft delete a service by marking it as inactive
@@ -32,6 +32,8 @@ export function useDeleteService(): UseDeleteServiceReturn {
   const deleteService = useCallback(async (id: string): Promise<boolean> => {
     setState({ loading: true, error: null });
     try {
+      if (!supabase) throw new Error('Supabase client not available');
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 

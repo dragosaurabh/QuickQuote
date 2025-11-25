@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Service } from '../types/models';
 import { ServiceRow, toServiceModel } from '../types/database';
@@ -27,9 +27,13 @@ export function useServices(): UseServicesReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const fetchServices = useCallback(async () => {
+    if (!supabase) {
+      setState({ services: [], loading: false, error: null });
+      return;
+    }
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { data: { user } } = await supabase.auth.getUser();

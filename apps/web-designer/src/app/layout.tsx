@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Creepster } from 'next/font/google';
-import { AuthProvider } from '@quickquote/core/components';
+import { AuthProvider, ToastProvider } from '@quickquote/core/components';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -27,7 +27,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${creepster.variable} font-body bg-background text-text-primary`}>
         <AuthProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

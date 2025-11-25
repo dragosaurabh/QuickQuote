@@ -104,8 +104,9 @@ let supabaseClient: SupabaseClient<Database> | null = null;
 /**
  * Creates a Supabase client for browser usage
  * This is a basic client - for Next.js apps, use createClientComponentClient from @supabase/auth-helpers-nextjs
+ * Returns null during build time when env vars are not available
  */
-export function createBrowserClient(): SupabaseClient<Database> {
+export function createBrowserClient(): SupabaseClient<Database> | null {
   if (supabaseClient) {
     return supabaseClient;
   }
@@ -113,8 +114,15 @@ export function createBrowserClient(): SupabaseClient<Database> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // Return null during build time when env vars are not available
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+    if (typeof window === 'undefined') {
+      // Server-side/build time - return null silently
+      return null;
+    }
+    // Client-side - this is a real error
+    console.error('Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+    return null;
   }
 
   supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);

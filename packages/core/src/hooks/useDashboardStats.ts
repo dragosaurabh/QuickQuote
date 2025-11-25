@@ -37,9 +37,13 @@ export function useDashboardStats(): UseDashboardStatsReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const fetchStats = useCallback(async () => {
+    if (!supabase) {
+      setState(prev => ({ ...prev, loading: false }));
+      return;
+    }
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { data: { user } } = await supabase.auth.getUser();

@@ -1,0 +1,29 @@
+{
+  "../../../node_modules/.pnpm/jspdf@3.0.4/node_modules/jspdf/dist/jspdf.es.min.js -> canvg": {
+    "id": 8306,
+    "files": [
+      "static/chunks/7aeec5c9.5385776c5e6f0d00.js",
+      "static/chunks/751.495595349279b09f.js"
+    ]
+  },
+  "../../../node_modules/.pnpm/jspdf@3.0.4/node_modules/jspdf/dist/jspdf.es.min.js -> dompurify": {
+    "id": 872,
+    "files": [
+      "static/chunks/872.f8aaf88f3e72d96d.js"
+    ]
+  },
+  "../../../node_modules/.pnpm/jspdf@3.0.4/node_modules/jspdf/dist/jspdf.es.min.js -> html2canvas": {
+    "id": 9484,
+    "files": []
+  },
+  "../../../packages/core/src/components/quote/QuotePDF.tsx -> html2pdf.js": {
+    "id": 1901,
+    "files": [
+      "static/chunks/fe3fafec.61f99d8efcd9cd7b.js",
+      "static/chunks/f008833e.bf44d67aacb31641.js",
+      "static/chunks/718acc35.359b0c734ad9555e.js",
+      "static/chunks/0af98a8b.731730abc6e7077e.js",
+      "static/chunks/509.2ead3fc61cab4f71.js"
+    ]
+  }
+}

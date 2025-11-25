@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Session, AuthError } from '@supabase/supabase-js';
 import { createBrowserClient } from '../lib/supabase';
 
@@ -27,9 +27,14 @@ export function useSession(): UseSessionReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   useEffect(() => {
+    if (!supabase) {
+      setState(prev => ({ ...prev, loading: false }));
+      return;
+    }
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -65,9 +70,10 @@ export function useSession(): UseSessionReturn {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const refreshSession = useCallback(async () => {
+    if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { data: { session }, error } = await supabase.auth.refreshSession();
@@ -84,7 +90,7 @@ export function useSession(): UseSessionReturn {
         loading: false,
       }));
     }
-  }, [supabase.auth]);
+  }, [supabase]);
 
   return {
     ...state,

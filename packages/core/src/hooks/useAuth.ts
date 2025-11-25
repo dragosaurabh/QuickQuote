@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { User, AuthError, Session } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { User, AuthError } from '@supabase/supabase-js';
 import { createBrowserClient } from '../lib/supabase';
 
 export interface AuthState {
@@ -29,9 +29,15 @@ export function useAuth(): UseAuthReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   useEffect(() => {
+    // Skip if supabase client is not available (build time)
+    if (!supabase) {
+      setState(prev => ({ ...prev, loading: false }));
+      return;
+    }
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -67,9 +73,10 @@ export function useAuth(): UseAuthReturn {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const signInWithGoogle = useCallback(async () => {
+    if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -86,9 +93,10 @@ export function useAuth(): UseAuthReturn {
         loading: false,
       }));
     }
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
+    if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -103,9 +111,10 @@ export function useAuth(): UseAuthReturn {
         loading: false,
       }));
     }
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const signUpWithEmail = useCallback(async (email: string, password: string) => {
+    if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { error } = await supabase.auth.signUp({
@@ -123,9 +132,10 @@ export function useAuth(): UseAuthReturn {
         loading: false,
       }));
     }
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const signOut = useCallback(async () => {
+    if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { error } = await supabase.auth.signOut();
@@ -142,7 +152,7 @@ export function useAuth(): UseAuthReturn {
         loading: false,
       }));
     }
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Service } from '../types/models';
 import { ServiceRow, toServiceModel } from '../types/database';
@@ -26,11 +26,13 @@ export function useUpdateService(): UseUpdateServiceReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const updateService = useCallback(async (id: string, data: ServiceFormInput): Promise<Service | null> => {
     setState({ loading: true, error: null });
     try {
+      if (!supabase) throw new Error('Supabase client not available');
+      
       // Validate input using Zod schema (Requirements 3.5)
       const validated = serviceFormSchema.parse(data);
 

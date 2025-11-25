@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createBrowserClient } from '../lib/supabase';
 import { Quote, QuoteItem, Customer } from '../types/models';
 import { QuoteRow, QuoteItemRow, CustomerRow, toQuoteModel, toQuoteItemModel, toCustomerModel } from '../types/database';
@@ -26,10 +26,10 @@ export function useQuote(quoteId: string | null): UseQuoteReturn {
     error: null,
   });
 
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   const fetchQuote = useCallback(async () => {
-    if (!quoteId) {
+    if (!quoteId || !supabase) {
       setState({ quote: null, loading: false, error: null });
       return;
     }
