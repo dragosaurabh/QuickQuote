@@ -1,0 +1,19 @@
+{
+  "name": "quickquote",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QuickQuote - Professional price quotes via WhatsApp",
+  "scripts": {
+    "dev:web-designer": "pnpm --filter @quickquote/web-designer dev",
+    "dev:photographer": "pnpm --filter @quickquote/photographer dev",
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @quickquote/core build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

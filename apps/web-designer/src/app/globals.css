@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Halloween Theme Color Variables */
+:root {
+  /* Dark mode as default - Requirements 12.1 */
+  --foreground-rgb: 250, 250, 250;
+  --background-rgb: 10, 10, 10;
+  
+  /* Halloween accent colors - Requirements 12.4 */
+  --halloween-purple: 139, 92, 246;
+  --halloween-green: 34, 197, 94;
+  --halloween-orange: 249, 115, 22;
+  --halloween-black: 10, 10, 10;
+  
+  /* Neon glow intensities */
+  --glow-intensity: 0.5;
+  --glow-spread: 20px;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  /* Subtle texture for spooky feel */
+  background-image: 
+    radial-gradient(ellipse at top, rgba(var(--halloween-purple), 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(var(--halloween-green), 0.03) 0%, transparent 50%);
+  min-height: 100vh;
+}
+
+/* Spooky font styling for headings - Requirements 12.5 */
+@layer base {
+  h1, h2, h3 {
+    @apply font-heading;
+    text-shadow: 0 0 10px rgba(var(--halloween-purple), 0.3);
+  }
+  
+  /* Maintain readability for body text */
+  p, span, div, li, td, th, label, input, textarea, select, button {
+    @apply font-body;
+  }
+}
+
+/* Neon glow effects for interactive elements - Requirements 12.4 */
+@layer components {
+  .neon-purple {
+    box-shadow: 
+      0 0 5px rgba(var(--halloween-purple), 0.5),
+      0 0 10px rgba(var(--halloween-purple), 0.3),
+      0 0 20px rgba(var(--halloween-purple), 0.2);
+  }
+  
+  .neon-green {
+    box-shadow: 
+      0 0 5px rgba(var(--halloween-green), 0.5),
+      0 0 10px rgba(var(--halloween-green), 0.3),
+      0 0 20px rgba(var(--halloween-green), 0.2);
+  }
+  
+  .neon-orange {
+    box-shadow: 
+      0 0 5px rgba(var(--halloween-orange), 0.5),
+      0 0 10px rgba(var(--halloween-orange), 0.3),
+      0 0 20px rgba(var(--halloween-orange), 0.2);
+  }
+  
+  .neon-text-purple {
+    text-shadow: 
+      0 0 5px rgba(var(--halloween-purple), 0.8),
+      0 0 10px rgba(var(--halloween-purple), 0.5),
+      0 0 20px rgba(var(--halloween-purple), 0.3);
+  }
+  
+  .neon-text-green {
+    text-shadow: 
+      0 0 5px rgba(var(--halloween-green), 0.8),
+      0 0 10px rgba(var(--halloween-green), 0.5),
+      0 0 20px rgba(var(--halloween-green), 0.3);
+  }
+  
+  .neon-text-orange {
+    text-shadow: 
+      0 0 5px rgba(var(--halloween-orange), 0.8),
+      0 0 10px rgba(var(--halloween-orange), 0.5),
+      0 0 20px rgba(var(--halloween-orange), 0.3);
+  }
+  
+  /* Spooky card hover effect */
+  .spooky-card {
+    @apply bg-surface border border-primary/20 rounded-xl transition-all duration-300;
+  }
+  
+  .spooky-card:hover {
+    @apply border-primary/50;
+    box-shadow: 
+      0 0 10px rgba(var(--halloween-purple), 0.2),
+      0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Spooky button glow on hover */
+  .spooky-button {
+    @apply transition-all duration-300;
+  }
+  
+  .spooky-button:hover:not(:disabled) {
+    box-shadow: 
+      0 0 10px rgba(var(--halloween-purple), 0.4),
+      0 0 20px rgba(var(--halloween-purple), 0.2);
+  }
+  
+  /* Floating animation for decorative elements */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .float-animation-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+  
+  /* Pulse glow animation */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.5;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(2px);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+  75% { opacity: 0.9; }
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--background-rgb));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--halloween-purple), 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--halloween-purple), 0.5);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(var(--halloween-purple), 0.3);
+  color: rgb(var(--foreground-rgb));
+}

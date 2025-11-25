@@ -1,0 +1,323 @@
+# Implementation Plan
+
+- [-] 1. Project Setup and Configuration
+  - [x] 1.1 Initialize monorepo with pnpm workspaces
+    - Create root package.json with workspaces configuration
+    - Set up pnpm-workspace.yaml for apps/* and packages/*
+    - Configure TypeScript with shared tsconfig.json
+    - _Requirements: 11.5_
+  - [x] 1.2 Create Next.js apps for both variants
+    - Initialize apps/web-designer with Next.js 14+ App Router
+    - Initialize apps/photographer with Next.js 14+ App Router
+    - Configure Tailwind CSS with dark mode in both apps
+    - _Requirements: 11.1, 11.2, 12.1_
+  - [x] 1.3 Set up shared core package
+    - Create packages/core with TypeScript configuration
+    - Set up package exports for components, hooks, lib, and types
+    - Configure build tooling for the package
+    - _Requirements: 11.5_
+  - [x] 1.4 Configure Supabase client
+    - Install @supabase/supabase-js and @supabase/auth-helpers-nextjs
+    - Create Supabase client utilities in packages/core/lib
+    - Set up environment variables template
+    - _Requirements: 13.1_
+
+- [x] 2. Database Schema and Types
+  - [x] 2.1 Create Supabase database schema
+    - Create SQL migration for all tables (businesses, services, customers, quotes, quote_items)
+    - Set up indexes for performance
+    - Configure Row Level Security policies
+    - _Requirements: 13.5_
+  - [x] 2.2 Define TypeScript interfaces
+    - Create type definitions for all database models in packages/core/types
+    - Create Zod schemas for validation
+    - Export types from package
+    - _Requirements: 2.2, 3.5, 13.2_
+
+- [x] 3. Calculation Engine
+  - [x] 3.1 Implement core calculation functions
+    - Implement calculateLineTotal(quantity, unitPrice)
+    - Implement calculateSubtotal(items)
+    - Implement calculateDiscount(subtotal, discountConfig)
+    - Implement calculateTotal(subtotal, discountAmount)
+    - Implement calculateQuote(input) orchestrator function
+    - _Requirements: 5.3, 5.4, 5.5, 6.1, 6.2, 6.3, 6.4_
+  - [x] 3.2 Write property tests for line item calculation
+    - **Property 1: Line item calculation correctness**
+    - **Validates: Requirements 5.3**
+  - [x] 3.3 Write property tests for subtotal calculation
+    - **Property 2: Subtotal is sum of line items**
+    - **Validates: Requirements 6.1**
+  - [x] 3.4 Write property tests for percentage discount
+    - **Property 3: Percentage discount calculation**
+    - **Validates: Requirements 5.4, 6.2**
+  - [x] 3.5 Write property tests for fixed discount
+    - **Property 4: Fixed discount calculation**
+    - **Validates: Requirements 5.5, 6.3**
+  - [x] 3.6 Write property tests for total non-negativity
+    - **Property 5: Total never negative**
+    - **Validates: Requirements 6.4**
+
+- [x] 4. Data Serialization
+  - [x] 4.1 Implement quote serialization utilities
+    - Create serializeQuote function for JSON encoding
+    - Create deserializeQuote function for JSON parsing
+    - Handle date serialization/deserialization
+    - _Requirements: 6.5, 6.6_
+  - [x] 4.2 Write property tests for serialization round-trip
+    - **Property 6: Quote data round-trip**
+    - **Validates: Requirements 6.5, 6.6**
+
+- [x] 5. Checkpoint - Ensure core logic tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Shared UI Components
+  - [x] 6.1 Create base UI components
+    - Implement Button component with variants (primary, secondary, ghost)
+    - Implement Input component with validation states
+    - Implement Select component
+    - Implement Checkbox component
+    - Implement TextArea component
+    - Implement Card component
+    - _Requirements: 14.4_
+  - [x] 6.2 Create layout components
+    - Implement Header component with navigation
+    - Implement Sidebar component
+    - Implement DashboardLayout wrapper
+    - _Requirements: 14.1, 14.2, 14.3_
+  - [x] 6.3 Create feedback components
+    - Implement Modal component
+    - Implement Toast notification component
+    - Implement LoadingSpinner with Halloween message
+    - Implement Badge component for status display
+    - _Requirements: 12.2, 13.4_
+
+- [x] 7. Authentication Flow
+  - [x] 7.1 Implement authentication hooks and utilities
+    - Create useAuth hook with Supabase Auth
+    - Create useSession hook for session management
+    - Implement auth middleware for protected routes
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [x] 7.2 Build landing page
+    - Create hero section with app description
+    - Add Google login button
+    - Add feature highlights section
+    - Apply Halloween theme styling
+    - _Requirements: 1.1, 12.1, 12.4_
+  - [x] 7.3 Build login/signup page
+    - Implement Google OAuth login
+    - Add email/password option
+    - Display Halloween-themed welcome message
+    - Handle auth errors with retry option
+    - _Requirements: 1.2, 1.3, 1.4, 12.3_
+
+- [x] 8. Business Profile and Onboarding
+  - [x] 8.1 Implement business data hooks
+    - Create useBusiness hook for fetching/updating business profile
+    - Create useCreateBusiness mutation hook
+    - _Requirements: 2.4, 2.5_
+  - [x] 8.2 Build onboarding flow
+    - Create multi-step onboarding wizard
+    - Step 1: Business details form (name, phone, email, address)
+    - Step 2: Logo upload with file validation
+    - Step 3: Default terms and validity settings
+    - Add progress indicator
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - [x] 8.3 Write property tests for business validation
+    - **Property 8: Required field validation**
+    - **Validates: Requirements 2.2, 13.2**
+
+- [x] 9. Service Management
+  - [x] 9.1 Implement service data hooks
+    - Create useServices hook for fetching services
+    - Create useCreateService mutation hook
+    - Create useUpdateService mutation hook
+    - Create useDeleteService mutation hook (soft delete)
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 9.2 Build service management UI
+    - Create service list view grouped by category
+    - Create add/edit service modal form
+    - Implement service deletion with confirmation
+    - Add price validation
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 9.3 Write property tests for service price validation
+    - **Property 7: Service price validation**
+    - **Validates: Requirements 3.5**
+
+- [x] 10. Customer Management
+  - [x] 10.1 Implement customer data hooks
+    - Create useCustomers hook with search functionality
+    - Create useCreateCustomer mutation hook
+    - Create useUpdateCustomer mutation hook
+    - _Requirements: 4.1, 4.2, 4.3, 4.4_
+  - [x] 10.2 Build customer management UI
+    - Create customer list view with search
+    - Create add/edit customer modal form
+    - Implement inline customer creation for quote flow
+    - _Requirements: 4.1, 4.2, 4.4, 4.5_
+
+- [x] 11. Checkpoint - Ensure CRUD operations work
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 12. Quote Creation Flow
+  - [x] 12.1 Implement quote data hooks
+    - Create useQuotes hook with filtering and search
+    - Create useQuote hook for single quote
+    - Create useCreateQuote mutation hook
+    - Create useUpdateQuote mutation hook
+    - _Requirements: 9.1, 9.2, 9.3, 9.5_
+  - [x] 12.2 Build quote number generator
+    - Implement generateQuoteNumber function with format "QQ-YYYY-NNN"
+    - Ensure uniqueness via database sequence or counter
+    - _Requirements: 5.9_
+  - [x] 12.3 Write property tests for quote number format
+    - **Property 9: Quote number format**
+    - **Validates: Requirements 5.9**
+  - [x] 12.4 Build customer selector component
+    - Create CustomerSelector with search and selection
+    - Add inline "Add New Customer" option
+    - _Requirements: 5.1, 4.5_
+  - [x] 12.5 Build service selector component
+    - Create ServiceSelector with checkboxes grouped by category
+    - Display service name and price
+    - Handle selection state
+    - _Requirements: 5.2, 3.4_
+  - [x] 12.6 Build quote item editor
+    - Create QuoteItemRow component with quantity adjuster
+    - Implement live line total calculation
+    - _Requirements: 5.3, 5.6_
+  - [x] 12.7 Build discount input component
+    - Create DiscountInput with type toggle (percentage/fixed)
+    - Implement discount calculation display
+    - _Requirements: 5.4, 5.5_
+  - [x] 12.8 Build quote creation page
+    - Assemble all components into quote creation flow
+    - Add notes/terms input fields
+    - Add validity date picker
+    - Display live total calculation
+    - Add "Generate Quote" button
+    - _Requirements: 5.1, 5.2, 5.6, 5.7, 5.8_
+
+- [x] 13. Quote Preview and PDF
+  - [x] 13.1 Build quote preview component
+    - Create QuotePreview with business header and logo
+    - Display customer details section
+    - Render itemized services table
+    - Show subtotal, discount, and final total
+    - Display terms and validity date
+    - _Requirements: 7.1, 7.3, 7.4, 7.5_
+  - [x] 13.2 Implement PDF generation
+    - Set up React-PDF or html2pdf
+    - Create QuotePDF component matching preview layout
+    - Implement download functionality
+    - _Requirements: 7.2, 7.3, 7.4, 7.5_
+
+- [x] 14. Quote Sharing
+  - [x] 14.1 Implement WhatsApp message generator
+    - Create generateWhatsAppMessage function
+    - Include all required fields (business name, customer, quote number, date, validity, total, link)
+    - Format message with emojis and structure
+    - _Requirements: 8.1, 8.2_
+  - [x] 14.2 Write property tests for WhatsApp message
+    - **Property 13: WhatsApp message contains required fields**
+    - **Validates: Requirements 8.2**
+  - [x] 14.3 Build share functionality
+    - Implement WhatsApp share button with deep link
+    - Implement copy link to clipboard
+    - Add share confirmation toast
+    - _Requirements: 8.1, 8.3_
+  - [x] 14.4 Build public quote view page
+    - Create public route for quote viewing
+    - Display quote preview without auth requirement
+    - _Requirements: 8.4_
+
+- [x] 15. Quote Management
+  - [x] 15.1 Build quotes list page
+    - Create quotes table/list view
+    - Display quote number, customer, date, status, total
+    - Implement sorting by creation date descending
+    - _Requirements: 9.1_
+  - [x] 15.2 Write property tests for quote list sorting
+    - **Property 10: Quote list sorting**
+    - **Validates: Requirements 9.1**
+  - [x] 15.3 Implement quote filtering
+    - Add status filter tabs (All, Pending, Accepted, Rejected, Expired)
+    - Implement filter logic
+    - _Requirements: 9.2_
+  - [x] 15.4 Write property tests for quote status filtering
+    - **Property 11: Quote status filtering**
+    - **Validates: Requirements 9.2**
+  - [x] 15.5 Implement quote search
+    - Add search input for customer name and quote number
+    - Implement search logic
+    - _Requirements: 9.3_
+  - [x] 15.6 Implement quote duplication
+    - Add duplicate button to quote actions
+    - Create new quote with same customer and services
+    - _Requirements: 9.4_
+  - [x] 15.7 Write property tests for quote duplication
+    - **Property 12: Quote duplication preserves data**
+    - **Validates: Requirements 9.4**
+  - [x] 15.8 Implement quote status updates
+    - Add status change dropdown/buttons
+    - Persist status changes immediately
+    - _Requirements: 9.5_
+  - [x] 15.9 Implement quote expiration
+    - Create function to check and update expired quotes
+    - Run on page load or via scheduled job
+    - _Requirements: 9.6_
+
+- [x] 16. Dashboard
+  - [x] 16.1 Implement dashboard stats hooks
+    - Create useDashboardStats hook
+    - Calculate total quotes this month
+    - Calculate total accepted value this month
+    - Calculate total pending amount
+    - _Requirements: 10.1, 10.2, 10.3_
+  - [x] 16.2 Write property tests for dashboard stats
+    - **Property 14: Dashboard stats accuracy**
+    - **Validates: Requirements 10.1, 10.2, 10.3**
+  - [x] 16.3 Build dashboard page
+    - Create StatsCard components for each metric
+    - Add RecentQuotes component (last 5)
+    - Add QuickActions component (Create Quote, View All)
+    - Apply Halloween theme styling
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 12.1, 12.4_
+
+- [x] 17. Checkpoint - Ensure quote flow works end-to-end
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 18. Settings Page
+  - [x] 18.1 Build settings page
+    - Create tabbed settings interface
+    - Business profile edit section
+    - Services management section
+    - Default quote settings section
+    - _Requirements: 2.5, 3.1, 3.2, 3.3_
+
+- [x] 19. Application Variants Configuration
+  - [x] 19.1 Configure Web Designer variant
+    - Create theme configuration with tech colors + Halloween accents
+    - Create seed data for web design services
+    - Configure app-specific branding
+    - _Requirements: 11.1, 11.3_
+  - [x] 19.2 Configure Photographer variant
+    - Create theme configuration with creative colors + Halloween accents
+    - Create seed data for photography services
+    - Configure app-specific branding
+    - _Requirements: 11.2, 11.4_
+
+- [x] 20. Halloween Theme Polish
+  - [x] 20.1 Apply Halloween styling
+    - Configure dark mode color palette (purple, black backgrounds)
+    - Add neon accent colors (purple, green, orange)
+    - Apply spooky fonts for headings
+    - _Requirements: 12.1, 12.4, 12.5_
+  - [x] 20.2 Add themed UI elements
+    - Create Halloween loading messages
+    - Add success/error themed messages
+    - Add subtle decorative elements
+    - _Requirements: 12.2, 12.3_
+
+- [x] 21. Final Checkpoint - Full application testing
+  - Ensure all tests pass, ask the user if questions arise.
