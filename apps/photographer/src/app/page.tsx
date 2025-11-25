@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { Button } from '@quickquote/core/components';
 import { useAuth } from '@quickquote/core/hooks';
 import { useRouter } from 'next/navigation';
