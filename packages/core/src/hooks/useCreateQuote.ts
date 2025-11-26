@@ -72,32 +72,53 @@ export function useCreateQuote(): UseCreateQuoteReturn {
 
       const businessId = (businessData as { id: string }).id;
 
-      // Generate quote number
-      const quoteNumber = await generateQuoteNumber(supabase, businessId);
+      // Generate quote number and create quote with retry logic
+      let quoteData: any = null;
+      let attempts = 0;
+      const maxAttempts = 3;
 
-      // Create the quote
-      const quoteInsertData = {
-        business_id: businessId,
-        customer_id: input.customerId,
-        quote_number: quoteNumber,
-        status: 'pending',
-        subtotal: input.subtotal,
-        discount_type: input.discountType || null,
-        discount_value: input.discountValue || 0,
-        total: input.total,
-        notes: input.notes || null,
-        terms: input.terms || null,
-        valid_until: input.validUntil ? input.validUntil.toISOString().split('T')[0] : null,
-      };
+      while (attempts < maxAttempts && !quoteData) {
+        attempts++;
+        
+        // Generate quote number
+        const quoteNumber = await generateQuoteNumber(supabase, businessId);
 
-      const { data: quoteData, error: quoteError } = await supabase
-        .from('quotes')
-        .insert(quoteInsertData as never)
-        .select()
-        .single();
+        // Create the quote
+        const quoteInsertData = {
+          business_id: businessId,
+          customer_id: input.customerId,
+          quote_number: quoteNumber,
+          status: 'pending',
+          subtotal: input.subtotal,
+          discount_type: input.discountType || null,
+          discount_value: input.discountValue || 0,
+          total: input.total,
+          notes: input.notes || null,
+          terms: input.terms || null,
+          valid_until: input.validUntil ? input.validUntil.toISOString().split('T')[0] : null,
+        };
 
-      if (quoteError) {
-        throw new Error(quoteError.message);
+        const { data, error: quoteError } = await supabase
+          .from('quotes')
+          .insert(quoteInsertData as never)
+          .select()
+          .single();
+
+        if (quoteError) {
+          // If it's a duplicate key error, retry with a new quote number
+          if (quoteError.code === '23505' && attempts < maxAttempts) {
+            console.warn(`Duplicate quote number detected, retrying... (attempt ${attempts}/${maxAttempts})`);
+            await new Promise(resolve => setTimeout(resolve, 100 * attempts)); // Brief delay
+            continue;
+          }
+          throw new Error(quoteError.message);
+        }
+
+        quoteData = data;
+      }
+
+      if (!quoteData) {
+        throw new Error('Failed to create quote after multiple attempts');
       }
 
       const quote = toQuoteModel(quoteData as unknown as QuoteRow);
@@ -147,13 +168,27 @@ export function useCreateQuote(): UseCreateQuoteReturn {
 
 /**
  * Generate a unique quote number in format "QQ-YYYY-NNN"
+ * Uses database function to ensure uniqueness
  * Validates: Requirements 5.9
  */
 async function generateQuoteNumber(
   supabase: NonNullable<ReturnType<typeof createBrowserClient>>,
   businessId: string
 ): Promise<string> {
+  // Try to use the database function first
+  try {
+    const { data, error } = await supabase.rpc('generate_quote_number');
+    
+    if (!error && data) {
+      return data as string;
+    }
+  } catch (err) {
+    console.warn('Database function not available, using fallback');
+  }
+
+  // Fallback to client-side generation with timestamp to ensure uniqueness
   const year = new Date().getFullYear();
+  const timestamp = Date.now();
   const prefix = `QQ-${year}-`;
 
   // Get the highest quote number for this business and year
@@ -162,11 +197,13 @@ async function generateQuoteNumber(
     .select('quote_number')
     .eq('business_id', businessId)
     .like('quote_number', `${prefix}%`)
-    .order('quote_number', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(1);
 
   if (error) {
-    throw new Error(error.message);
+    // If query fails, use timestamp-based number
+    const uniqueNumber = timestamp % 100000;
+    return `${prefix}${uniqueNumber.toString().padStart(5, '0')}`;
   }
 
   let nextNumber = 1;

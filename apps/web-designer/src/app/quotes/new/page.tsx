@@ -64,24 +64,32 @@ export default function NewQuotePage() {
   };
 
   const handleSubmit = async (data: QuoteFormData) => {
-    const quote = await createQuote({
-      customerId: data.customerId,
-      items: data.items,
-      subtotal: data.subtotal,
-      discountType: data.discountType,
-      discountValue: data.discountValue,
-      total: data.total,
-      notes: data.notes,
-      terms: data.terms,
-      validUntil: data.validUntil,
-    });
+    try {
+      const quote = await createQuote({
+        customerId: data.customerId,
+        items: data.items,
+        subtotal: data.subtotal,
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+        total: data.total,
+        notes: data.notes,
+        terms: data.terms,
+        validUntil: data.validUntil,
+      });
 
-    if (quote) {
-      addToast('success', '🎃 Quote conjured successfully!');
-      // Navigate to quote preview/detail page
-      router.push(`/quotes/${quote.id}`);
-    } else if (createQuoteError) {
-      addToast('error', createQuoteError.message || 'Failed to create quote');
+      if (quote) {
+        addToast('success', '🎃 Quote conjured successfully!');
+        // Navigate to quote preview/detail page
+        router.push(`/quotes/${quote.id}`);
+      } else {
+        // If quote is null but no error was thrown, show generic error
+        addToast('error', createQuoteError?.message || '👻 Failed to create quote. Please try again.');
+      }
+    } catch (error) {
+      // Catch any unexpected errors
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      addToast('error', `👻 ${errorMessage}`);
+      console.error('Quote creation error:', error);
     }
   };
 
