@@ -36,44 +36,50 @@ export function useQuote(quoteId: string | null): UseQuoteReturn {
 
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      // Fetch quote with customer and items
-      const { data, error } = await supabase
+      // Fetch quote first
+      const { data: quoteData, error: quoteError } = await supabase
         .from('quotes')
-        .select(`
-          *,
-          customer:customers (*),
-          quote_items (*)
-        `)
+        .select('*')
         .eq('id', quoteId)
         .single();
 
-      if (error) {
-        throw new Error(error.message);
+      if (quoteError) {
+        throw new Error(quoteError.message);
       }
 
-
-      if (!data) {
+      if (!quoteData) {
         setState({ quote: null, loading: false, error: new Error('Quote not found') });
         return;
       }
 
-      const quoteRow = data as unknown as QuoteRow & {
-        customer: CustomerRow | null;
-        quote_items: QuoteItemRow[];
-      };
+      const quote = toQuoteModel(quoteData as unknown as QuoteRow);
 
-      const quote = toQuoteModel(quoteRow);
+      // Fetch customer separately if exists
+      if (quote.customerId) {
+        const { data: customerData } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', quote.customerId)
+          .single();
 
-      if (quoteRow.customer) {
-        quote.customer = toCustomerModel(quoteRow.customer);
+        if (customerData) {
+          quote.customer = toCustomerModel(customerData as unknown as CustomerRow);
+        }
       }
 
-      if (quoteRow.quote_items) {
-        quote.items = quoteRow.quote_items.map(item => toQuoteItemModel(item));
+      // Fetch quote items separately
+      const { data: itemsData } = await supabase
+        .from('quote_items')
+        .select('*')
+        .eq('quote_id', quoteId);
+
+      if (itemsData && itemsData.length > 0) {
+        quote.items = itemsData.map(item => toQuoteItemModel(item as unknown as QuoteItemRow));
       }
 
       setState({ quote, loading: false, error: null });
     } catch (error) {
+      console.error('Error fetching quote:', error);
       setState(prev => ({
         ...prev,
         loading: false,
