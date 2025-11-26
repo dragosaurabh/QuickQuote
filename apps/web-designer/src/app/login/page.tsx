@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@quickquote/core/components';
 import { useAuth } from '@quickquote/core/hooks';
@@ -17,9 +17,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading, error, clearError } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading, error, clearError, user } = useAuth();
   const router = useRouter();
+
+  // Redirect to dashboard if user is already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
 
   const handleGoogleLogin = async () => {
     clearError();
@@ -31,6 +39,7 @@ export default function LoginPage() {
     e.preventDefault();
     clearError();
     setLocalError(null);
+    setSignUpSuccess(false);
 
     if (!email || !password) {
       setLocalError('Please fill in all fields');
@@ -46,9 +55,13 @@ export default function LoginPage() {
         setLocalError('Password must be at least 6 characters');
         return;
       }
-      await signUpWithEmail(email, password);
+      const result = await signUpWithEmail(email, password);
+      if (!error) {
+        setSignUpSuccess(true);
+      }
     } else {
       await signInWithEmail(email, password);
+      // Redirect will happen via useEffect when user state updates
     }
   };
 
@@ -164,6 +177,15 @@ export default function LoginPage() {
                   : 'Sign In'}
             </Button>
           </form>
+
+          {/* Success Message for Sign Up */}
+          {signUpSuccess && (
+            <div className="bg-halloween-green/10 border border-halloween-green/30 rounded-lg p-4 text-center">
+              <p className="text-halloween-green text-sm">
+                ✨ Check your email to confirm your account!
+              </p>
+            </div>
+          )}
 
           {/* Error Display with Retry */}
           {displayError && (

@@ -99,12 +99,16 @@ export function useAuth(): UseAuthReturn {
     if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+      
+      // User will be set via onAuthStateChange listener
+      console.log('Sign in successful:', data.user?.email);
     } catch (error) {
+      console.error('Sign in error:', error);
       setState(prev => ({
         ...prev,
         error: error as AuthError,
@@ -117,7 +121,7 @@ export function useAuth(): UseAuthReturn {
     if (!supabase) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -125,7 +129,12 @@ export function useAuth(): UseAuthReturn {
         },
       });
       if (error) throw error;
+      
+      console.log('Sign up successful:', data.user?.email);
+      // Loading state will be cleared by the component
+      setState(prev => ({ ...prev, loading: false }));
     } catch (error) {
+      console.error('Sign up error:', error);
       setState(prev => ({
         ...prev,
         error: error as AuthError,
