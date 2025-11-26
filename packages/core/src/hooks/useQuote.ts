@@ -41,7 +41,7 @@ export function useQuote(quoteId: string | null): UseQuoteReturn {
         .from('quotes')
         .select(`
           *,
-          customers (*),
+          customer:customers (*),
           quote_items (*)
         `)
         .eq('id', quoteId)
@@ -58,14 +58,14 @@ export function useQuote(quoteId: string | null): UseQuoteReturn {
       }
 
       const quoteRow = data as unknown as QuoteRow & {
-        customers: CustomerRow | null;
+        customer: CustomerRow | null;
         quote_items: QuoteItemRow[];
       };
 
       const quote = toQuoteModel(quoteRow);
 
-      if (quoteRow.customers) {
-        quote.customer = toCustomerModel(quoteRow.customers);
+      if (quoteRow.customer) {
+        quote.customer = toCustomerModel(quoteRow.customer);
       }
 
       if (quoteRow.quote_items) {
