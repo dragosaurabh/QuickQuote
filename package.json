@@ -10,7 +10,10 @@
     "build:core": "pnpm --filter @quickquote/core build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "clean": "rm -rf apps/web-designer/.next apps/photographer/.next packages/core/dist packages/core/tsconfig.tsbuildinfo",
+    "clean:all": "pnpm clean && rm -rf node_modules/.cache",
+    "fresh": "pnpm clean && pnpm install"
   },
   "engines": {
     "node": ">=18.0.0",
