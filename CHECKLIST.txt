@@ -1,0 +1,47 @@
+╔══════════════════════════════════════════════════════════════╗
+║          🎃 QUICKQUOTE FIX CHECKLIST 🎃                      ║
+╚══════════════════════════════════════════════════════════════╝
+
+Follow these steps IN ORDER:
+
+□ Step 1: Apply Database Migration
+  ├─ Go to Supabase Dashboard
+  ├─ Open SQL Editor
+  ├─ Copy SQL from supabase/migrations/002_fix_rls_policies.sql
+  ├─ Paste and Run
+  └─ ✓ Should see "Success. No rows returned"
+
+□ Step 2: Clear Cache
+  ├─ Run: pnpm clean
+  └─ ✓ Should see cache directories removed
+
+□ Step 3: Restart Dev Server
+  ├─ Stop current server (Ctrl+C)
+  ├─ Run: pnpm dev:web-designer
+  └─ ✓ Should start without errors
+
+□ Step 4: Test Quote Creation
+  ├─ Go to /quotes/new
+  ├─ Select customer
+  ├─ Select services
+  ├─ Click "Generate Quote"
+  └─ ✓ Should create and redirect successfully
+
+□ Step 5: Test Quote Viewing
+  ├─ Should be on quote detail page
+  └─ ✓ Should display without "Cannot coerce" error
+
+╔══════════════════════════════════════════════════════════════╗
+║  ⚠️  CRITICAL: Step 1 (Database Migration) is REQUIRED!     ║
+║     The app will NOT work without it!                        ║
+╚══════════════════════════════════════════════════════════════╝
+
+Files to check:
+✓ supabase/migrations/002_fix_rls_policies.sql - Migration file
+✓ FIX-INSTRUCTIONS.md - Detailed instructions
+✓ QUOTE-GENERATION-FIX.md - Technical documentation
+
+Need help? Check:
+- Browser Console (F12)
+- Terminal output
+- FIX-INSTRUCTIONS.md
